@@ -1,0 +1,79 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "AWS Manager Plugin",
+    "description": "Manage AWS resources via ChatGPT.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://aws-plugin.dwellynx.com"
+    }
+  ],
+  "paths": {
+    "/create-s3-bucket": {
+      "post": {
+        "operationId": "createS3Bucket",
+        "summary": "Create a new S3 Bucket",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "bucketName": {
+                    "type": "string"
+                  }
+                },
+                "required": ["bucketName"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Bucket creation success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/list-s3-buckets": {
+      "get": {
+        "operationId": "listS3Buckets",
+        "summary": "List all S3 Buckets",
+        "responses": {
+          "200": {
+            "description": "A list of buckets",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "buckets": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

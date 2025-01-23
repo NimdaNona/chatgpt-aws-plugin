@@ -1,0 +1,18 @@
+{
+  "schema_version": "v1",
+  "name_for_model": "aws_manager",
+  "name_for_human": "AWS Manager",
+  "description_for_model": "Plugin for managing AWS resources. Create S3 buckets, deploy Lambdas, etc.",
+  "description_for_human": "Manage AWS resources via ChatGPT.",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "https://aws-plugin.dwellynx.com/openapi.json", 
+    "is_user_authenticated": false
+  },
+  "logo_url": "https://aws-plugin.dwellynx.com/logo.png",
+  "contact_email": "sterling@dwellynx.com",
+  "legal_info_url": "https://dwellynx.com/legal"
+}
