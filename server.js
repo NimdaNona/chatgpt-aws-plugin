@@ -14,16 +14,13 @@ const {
   BatchClient,
   ElasticBeanstalkClient,
   OutpostsClient,
-  EBSClient,
   FSxClient,
   GlacierClient,
   StorageGatewayClient,
   RDSClient,
   RedshiftClient,
-  AuroraClient,
   ElastiCacheClient,
   Route53Client,
-  VPCClient,
   CloudFrontClient,
   DirectConnectClient,
   GlobalAcceleratorClient,
@@ -34,15 +31,12 @@ const {
   QuickSightClient,
   AthenaClient,
   ECSClient,
-  EKSClient,
-  FargateClient,
   ECRClient,
   FirehoseClient,
   SecretsManagerClient,
   SSMClient,
   SESClient,
   AmplifyClient,
-  AppRunnerClient,
   IAMClient,
   GuardDutyClient,
   ShieldClient,
@@ -50,7 +44,6 @@ const {
   KMSClient,
   SageMakerClient,
   RekognitionClient,
-  LexClient,
   CodeCommitClient,
   CodeBuildClient,
   CodeDeployClient,
@@ -60,13 +53,10 @@ const {
   CloudTrailClient,
   CloudWatchClient,
   ConfigServiceClient,
-  StepFunctionsClient,
   SQSClient,
   SNSClient,
   MQClient,
   IoTClient,
-  IoTAnalyticsClient,
-  IoTDeviceManagementClient,
   MediaConvertClient,
   MediaLiveClient,
   MediaPackageClient,
@@ -78,7 +68,6 @@ const {
   WorkSpacesClient,
   AppStreamClient,
   WorkDocsClient,
-  ManagedBlockchainClient,
   BraketClient,
   RoboMakerClient,
   GroundStationClient,
@@ -86,13 +75,9 @@ const {
   PinpointClient,
   GameLiftClient,
   CognitoIdentityClient,
-  ApiGatewayClient,
   NeptuneClient,
-  KeyspacesClient,
-  TimestreamClient,
   OpenSearchClient,
   LakeFormationClient,
-  MSKClient,
   TranscribeClient,
   PollyClient,
   TranslateClient,
@@ -107,7 +92,10 @@ const {
   MacieClient,
   CostExplorerClient,
   AppFlowClient,
-} = require("@aws-sdk/client-*"); // Note: Install required clients
+  SFNClient, // Step Functions
+  LexModelBuildingServiceClient, // Lex
+} = require("@aws-sdk/client-*");
+ // Note: Install required clients
 
 // Map of AWS services to their respective SDK clients
 const serviceClients = {
@@ -119,16 +107,13 @@ const serviceClients = {
   batch: BatchClient,
   elasticbeanstalk: ElasticBeanstalkClient,
   outposts: OutpostsClient,
-  ebs: EBSClient,
   fsx: FSxClient,
   glacier: GlacierClient,
   storagegateway: StorageGatewayClient,
   rds: RDSClient,
   redshift: RedshiftClient,
-  aurora: AuroraClient,
   elasticache: ElastiCacheClient,
   route53: Route53Client,
-  vpc: VPCClient,
   cloudfront: CloudFrontClient,
   directconnect: DirectConnectClient,
   globalaccelerator: GlobalAcceleratorClient,
@@ -136,18 +121,15 @@ const serviceClients = {
   emr: EMRClient,
   kinesis: KinesisClient,
   glue: GlueClient,
-  athena: AthenaClient,
   quicksight: QuickSightClient,
+  athena: AthenaClient,
   ecs: ECSClient,
-  eks: EKSClient,
-  fargate: FargateClient,
   ecr: ECRClient,
   firehose: FirehoseClient,
   secretsmanager: SecretsManagerClient,
   ssm: SSMClient,
   ses: SESClient,
   amplify: AmplifyClient,
-  apprunner: AppRunnerClient,
   iam: IAMClient,
   guardduty: GuardDutyClient,
   shield: ShieldClient,
@@ -155,7 +137,6 @@ const serviceClients = {
   kms: KMSClient,
   sagemaker: SageMakerClient,
   rekognition: RekognitionClient,
-  lex: LexClient,
   codecommit: CodeCommitClient,
   codebuild: CodeBuildClient,
   codedeploy: CodeDeployClient,
@@ -164,14 +145,11 @@ const serviceClients = {
   cloudformation: CloudFormationClient,
   cloudtrail: CloudTrailClient,
   cloudwatch: CloudWatchClient,
-  config: ConfigServiceClient,
-  stepfunctions: StepFunctionsClient,
+  configservice: ConfigServiceClient,
   sqs: SQSClient,
   sns: SNSClient,
   mq: MQClient,
   iot: IoTClient,
-  iotanalytics: IoTAnalyticsClient,
-  iotdevicemanagement: IoTDeviceManagementClient,
   mediaconvert: MediaConvertClient,
   medialive: MediaLiveClient,
   mediapackage: MediaPackageClient,
@@ -183,21 +161,16 @@ const serviceClients = {
   workspaces: WorkSpacesClient,
   appstream: AppStreamClient,
   workdocs: WorkDocsClient,
-  managedblockchain: ManagedBlockchainClient,
   braket: BraketClient,
   robomaker: RoboMakerClient,
   groundstation: GroundStationClient,
   efs: EFSClient,
   pinpoint: PinpointClient,
   gamelift: GameLiftClient,
-  cognito: CognitoIdentityClient,
-  apigateway: ApiGatewayClient,
+  cognitoidentity: CognitoIdentityClient,
   neptune: NeptuneClient,
-  keyspaces: KeyspacesClient,
-  timestream: TimestreamClient,
   opensearch: OpenSearchClient,
   lakeformation: LakeFormationClient,
-  msk: MSKClient,
   transcribe: TranscribeClient,
   polly: PollyClient,
   translate: TranslateClient,
@@ -212,9 +185,10 @@ const serviceClients = {
   macie: MacieClient,
   costexplorer: CostExplorerClient,
   appflow: AppFlowClient,
+  sfn: SFNClient, // Step Functions
+  lex: LexModelBuildingServiceClient, // Lex
 };
 
-// Dynamically load the client
 const loadAWSClient = (service) => {
   const client = serviceClients[service.toLowerCase()];
   if (!client) {
@@ -231,17 +205,18 @@ app.post("/aws-action", async (req, res) => {
   }
 
   try {
-    // Dynamically load the AWS client
+    // Load the appropriate AWS SDK client
     const AWSClient = loadAWSClient(service);
     const client = new AWSClient({ region: process.env.AWS_REGION });
 
-    // Dynamically invoke the action
+    // Check if the action exists in the client
     if (typeof client[action] !== "function") {
       return res.status(400).json({ error: `Invalid action: ${action} for service: ${service}` });
     }
 
-    const command = client[action](params);
-    const data = await command;
+    // Dynamically invoke the action
+    const command = new client[action](params); // Create the command with params
+    const data = await client.send(command); // Send the command
 
     res.json({ success: true, data });
   } catch (error) {
