@@ -5,97 +5,94 @@ const cors = require("cors");
 const path = require("path");
 
 // AWS SDK v3
-const {
-  S3Client,
-  DynamoDBClient,
-  LambdaClient,
-  EC2Client,
-  LightsailClient,
-  BatchClient,
-  ElasticBeanstalkClient,
-  OutpostsClient,
-  FSxClient,
-  GlacierClient,
-  StorageGatewayClient,
-  RDSClient,
-  RedshiftClient,
-  ElastiCacheClient,
-  Route53Client,
-  CloudFrontClient,
-  DirectConnectClient,
-  GlobalAcceleratorClient,
-  ElasticLoadBalancingClient,
-  EMRClient,
-  KinesisClient,
-  GlueClient,
-  QuickSightClient,
-  AthenaClient,
-  ECSClient,
-  ECRClient,
-  FirehoseClient,
-  SecretsManagerClient,
-  SSMClient,
-  SESClient,
-  AmplifyClient,
-  IAMClient,
-  GuardDutyClient,
-  ShieldClient,
-  WAFClient,
-  KMSClient,
-  SageMakerClient,
-  RekognitionClient,
-  CodeCommitClient,
-  CodeBuildClient,
-  CodeDeployClient,
-  CodePipelineClient,
-  Cloud9Client,
-  CloudFormationClient,
-  CloudTrailClient,
-  CloudWatchClient,
-  ConfigServiceClient,
-  SQSClient,
-  SNSClient,
-  MQClient,
-  IoTClient,
-  MediaConvertClient,
-  MediaLiveClient,
-  MediaPackageClient,
-  MediaStoreClient,
-  MigrationHubClient,
-  DatabaseMigrationServiceClient,
-  SnowballClient,
-  TransferClient,
-  WorkSpacesClient,
-  AppStreamClient,
-  WorkDocsClient,
-  BraketClient,
-  RoboMakerClient,
-  GroundStationClient,
-  EFSClient,
-  PinpointClient,
-  GameLiftClient,
-  CognitoIdentityClient,
-  NeptuneClient,
-  OpenSearchClient,
-  LakeFormationClient,
-  TranscribeClient,
-  PollyClient,
-  TranslateClient,
-  ForecastClient,
-  KendraClient,
-  PersonalizeClient,
-  TextractClient,
-  EventBridgeClient,
-  DirectoryServiceClient,
-  ACMClient,
-  InspectorClient,
-  MacieClient,
-  CostExplorerClient,
-  AppFlowClient,
-  SFNClient, // Step Functions
-  LexModelBuildingServiceClient, // Lex
-} = require("@aws-sdk/client-*");
- // Note: Install required clients
+const { S3Client } = require("@aws-sdk/client-s3");
+const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
+const { LambdaClient } = require("@aws-sdk/client-lambda");
+const { EC2Client } = require("@aws-sdk/client-ec2");
+const { LightsailClient } = require("@aws-sdk/client-lightsail");
+const { BatchClient } = require("@aws-sdk/client-batch");
+const { ElasticBeanstalkClient } = require("@aws-sdk/client-elastic-beanstalk");
+const { OutpostsClient } = require("@aws-sdk/client-outposts");
+const { FSxClient } = require("@aws-sdk/client-fsx");
+const { GlacierClient } = require("@aws-sdk/client-glacier");
+const { StorageGatewayClient } = require("@aws-sdk/client-storage-gateway");
+const { RDSClient } = require("@aws-sdk/client-rds");
+const { RedshiftClient } = require("@aws-sdk/client-redshift");
+const { ElastiCacheClient } = require("@aws-sdk/client-elasticache");
+const { Route53Client } = require("@aws-sdk/client-route-53");
+const { CloudFrontClient } = require("@aws-sdk/client-cloudfront");
+const { DirectConnectClient } = require("@aws-sdk/client-direct-connect");
+const { GlobalAcceleratorClient } = require("@aws-sdk/client-global-accelerator");
+const { ElasticLoadBalancingClient } = require("@aws-sdk/client-elastic-load-balancing");
+const { EMRClient } = require("@aws-sdk/client-emr");
+const { KinesisClient } = require("@aws-sdk/client-kinesis");
+const { GlueClient } = require("@aws-sdk/client-glue");
+const { QuickSightClient } = require("@aws-sdk/client-quicksight");
+const { AthenaClient } = require("@aws-sdk/client-athena");
+const { ECSClient } = require("@aws-sdk/client-ecs");
+const { ECRClient } = require("@aws-sdk/client-ecr");
+const { FirehoseClient } = require("@aws-sdk/client-firehose");
+const { SecretsManagerClient } = require("@aws-sdk/client-secrets-manager");
+const { SSMClient } = require("@aws-sdk/client-ssm");
+const { SESClient } = require("@aws-sdk/client-ses");
+const { AmplifyClient } = require("@aws-sdk/client-amplify");
+const { IAMClient } = require("@aws-sdk/client-iam");
+const { GuardDutyClient } = require("@aws-sdk/client-guardduty");
+const { ShieldClient } = require("@aws-sdk/client-shield");
+const { WAFClient } = require("@aws-sdk/client-waf");
+const { KMSClient } = require("@aws-sdk/client-kms");
+const { SageMakerClient } = require("@aws-sdk/client-sagemaker");
+const { RekognitionClient } = require("@aws-sdk/client-rekognition");
+const { CodeCommitClient } = require("@aws-sdk/client-codecommit");
+const { CodeBuildClient } = require("@aws-sdk/client-codebuild");
+const { CodeDeployClient } = require("@aws-sdk/client-codedeploy");
+const { CodePipelineClient } = require("@aws-sdk/client-codepipeline");
+const { Cloud9Client } = require("@aws-sdk/client-cloud9");
+const { CloudFormationClient } = require("@aws-sdk/client-cloudformation");
+const { CloudTrailClient } = require("@aws-sdk/client-cloudtrail");
+const { CloudWatchClient } = require("@aws-sdk/client-cloudwatch");
+const { ConfigServiceClient } = require("@aws-sdk/client-config-service");
+const { SQSClient } = require("@aws-sdk/client-sqs");
+const { SNSClient } = require("@aws-sdk/client-sns");
+const { MQClient } = require("@aws-sdk/client-mq");
+const { IoTClient } = require("@aws-sdk/client-iot");
+const { MediaConvertClient } = require("@aws-sdk/client-mediaconvert");
+const { MediaLiveClient } = require("@aws-sdk/client-medialive");
+const { MediaPackageClient } = require("@aws-sdk/client-mediapackage");
+const { MediaStoreClient } = require("@aws-sdk/client-mediastore");
+const { MigrationHubClient } = require("@aws-sdk/client-migration-hub");
+const { DatabaseMigrationServiceClient } = require("@aws-sdk/client-database-migration-service");
+const { SnowballClient } = require("@aws-sdk/client-snowball");
+const { TransferClient } = require("@aws-sdk/client-transfer");
+const { WorkSpacesClient } = require("@aws-sdk/client-workspaces");
+const { AppStreamClient } = require("@aws-sdk/client-appstream");
+const { WorkDocsClient } = require("@aws-sdk/client-workdocs");
+const { BraketClient } = require("@aws-sdk/client-braket");
+const { RoboMakerClient } = require("@aws-sdk/client-robomaker");
+const { GroundStationClient } = require("@aws-sdk/client-groundstation");
+const { EFSClient } = require("@aws-sdk/client-efs");
+const { PinpointClient } = require("@aws-sdk/client-pinpoint");
+const { GameLiftClient } = require("@aws-sdk/client-gamelift");
+const { CognitoIdentityClient } = require("@aws-sdk/client-cognito-identity");
+const { NeptuneClient } = require("@aws-sdk/client-neptune");
+const { OpenSearchClient } = require("@aws-sdk/client-opensearch");
+const { LakeFormationClient } = require("@aws-sdk/client-lakeformation");
+const { TranscribeClient } = require("@aws-sdk/client-transcribe");
+const { PollyClient } = require("@aws-sdk/client-polly");
+const { TranslateClient } = require("@aws-sdk/client-translate");
+const { ForecastClient } = require("@aws-sdk/client-forecast");
+const { KendraClient } = require("@aws-sdk/client-kendra");
+const { PersonalizeClient } = require("@aws-sdk/client-personalize");
+const { TextractClient } = require("@aws-sdk/client-textract");
+const { EventBridgeClient } = require("@aws-sdk/client-eventbridge");
+const { DirectoryServiceClient } = require("@aws-sdk/client-directory-service");
+const { ACMClient } = require("@aws-sdk/client-acm");
+const { InspectorClient } = require("@aws-sdk/client-inspector");
+const { MacieClient } = require("@aws-sdk/client-macie");
+const { CostExplorerClient } = require("@aws-sdk/client-cost-explorer");
+const { AppFlowClient } = require("@aws-sdk/client-appflow");
+const { SFNClient } = require("@aws-sdk/client-sfn"); // Step Functions
+const { LexModelBuildingServiceClient } = require("@aws-sdk/client-lex-model-building-service"); // Lex
 
 // Map of AWS services to their respective SDK clients
 const serviceClients = {
