@@ -4,6 +4,21 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const path = require("path");
 
+// Middleware to check for a valid Bearer Token
+app.use((req, res, next) => {
+  const authHeader = req.headers.authorization || "";
+  if (!authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "Missing or invalid Bearer token" });
+  }
+
+  const token = authHeader.split(" ")[1]; // Extract token from "Bearer <token>"
+  if (token !== process.env.BEARER_TOKEN) {
+    return res.status(401).json({ error: "Unauthorized: Invalid token" });
+  }
+
+  next(); // If token is valid, proceed to the next middleware/route handler
+});
+
 // AWS SDK v3
 const {
   S3Client,
