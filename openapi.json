@@ -1,20 +1,16 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "AWS Manager Plugin",
-    "description": "Manage AWS resources via ChatGPT.",
+    "title": "AWS Manager",
+    "description": "Perform any AWS action dynamically via a single endpoint.",
     "version": "1.0.0"
   },
-  "servers": [
-    {
-      "url": "https://aws-plugin.dwellynx.com"
-    }
-  ],
   "paths": {
-    "/create-s3-bucket": {
+    "/aws-action": {
       "post": {
-        "operationId": "createS3Bucket",
-        "summary": "Create a new S3 Bucket",
+        "operationId": "awsAction",
+        "summary": "Perform any AWS action",
+        "description": "Dynamically perform any action in AWS by specifying the service, action, and parameters.",
         "requestBody": {
           "required": true,
           "content": {
@@ -22,55 +18,44 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "bucketName": {
-                    "type": "string"
+                  "service": {
+                    "type": "string",
+                    "description": "AWS service name (e.g., s3, dynamodb, lambda)."
+                  },
+                  "action": {
+                    "type": "string",
+                    "description": "The action to perform (e.g., CreateBucket, ListBuckets)."
+                  },
+                  "params": {
+                    "type": "object",
+                    "description": "Parameters for the AWS action."
                   }
                 },
-                "required": ["bucketName"]
+                "required": ["service", "action"]
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Bucket creation success",
+            "description": "Successful response",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
                     "success": { "type": "boolean" },
-                    "message": { "type": "string" }
+                    "data": { "type": "object" }
                   }
                 }
               }
             }
-          }
-        }
-      }
-    },
-    "/list-s3-buckets": {
-      "get": {
-        "operationId": "listS3Buckets",
-        "summary": "List all S3 Buckets",
-        "responses": {
-          "200": {
-            "description": "A list of buckets",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "buckets": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
-                    }
-                  }
-                }
-              }
-            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "500": {
+            "description": "Internal server error"
           }
         }
       }
