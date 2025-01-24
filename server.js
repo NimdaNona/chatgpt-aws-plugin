@@ -108,12 +108,9 @@ const {
   CostExplorerClient,
   AppFlowClient,
 } = require("@aws-sdk/client-*"); // Note: Install required clients
-const { fromIni } = require("@aws-sdk/credential-providers");
-// Add other clients as needed
 
-// Load required AWS clients dynamically
-const loadAWSClient = (service) => {
-  const serviceClients = {
+// Map of AWS services to their respective SDK clients
+const serviceClients = {
   s3: S3Client,
   dynamodb: DynamoDBClient,
   lambda: LambdaClient,
@@ -216,7 +213,14 @@ const loadAWSClient = (service) => {
   costexplorer: CostExplorerClient,
   appflow: AppFlowClient,
 };
-  return serviceClients[service.toLowerCase()];
+
+// Dynamically load the client
+const loadAWSClient = (service) => {
+  const client = serviceClients[service.toLowerCase()];
+  if (!client) {
+    throw new Error(`Unsupported AWS service: ${service}`);
+  }
+  return client;
 };
 
 app.post("/aws-action", async (req, res) => {
@@ -227,18 +231,15 @@ app.post("/aws-action", async (req, res) => {
   }
 
   try {
+    // Dynamically load the AWS client
     const AWSClient = loadAWSClient(service);
-    if (!AWSClient) {
-      return res.status(400).json({ error: `Unsupported service: ${service}` });
+    const client = new AWSClient({ region: process.env.AWS_REGION });
+
+    // Dynamically invoke the action
+    if (typeof client[action] !== "function") {
+      return res.status(400).json({ error: `Invalid action: ${action} for service: ${service}` });
     }
 
-    // Initialize the AWS client
-    const client = new AWSClient({
-      region: process.env.AWS_REGION || "us-east-1",
-      credentials: fromIni({ profile: "default" }), // Adjust for your auth setup
-    });
-
-    // Dynamically invoke the action on the client
     const command = client[action](params);
     const data = await command;
 
