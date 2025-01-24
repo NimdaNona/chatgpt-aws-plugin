@@ -194,33 +194,6 @@ const loadAWSClient = (service) => {
   return client;
 };
 
-app.post("/aws-action", async (req, res) => {
-  const { service, action, params } = req.body;
-
-  if (!service || !action) {
-    return res.status(400).json({ error: "Missing 'service' or 'action' in request body" });
-  }
-
-  try {
-    // Load the appropriate AWS SDK client
-    const AWSClient = loadAWSClient(service);
-    const client = new AWSClient({ region: process.env.AWS_REGION });
-
-    // Check if the action exists in the client
-    if (typeof client[action] !== "function") {
-      return res.status(400).json({ error: `Invalid action: ${action} for service: ${service}` });
-    }
-
-    // Dynamically invoke the action
-    const command = new client[action](params); // Create the command with params
-    const data = await client.send(command); // Send the command
-
-    res.json({ success: true, data });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
 const app = express();
 app.use(bodyParser.json());
 app.use(cors());
@@ -259,38 +232,30 @@ app.get("/openapi.json", (req, res) => {
   res.sendFile(path.join(__dirname, "openapi.json"));
 });
 
-// Create S3 Bucket endpoint
-app.post("/create-s3-bucket", async (req, res) => {
-  const { bucketName } = req.body;
-  if (!bucketName) {
-    return res.status(400).json({
-      success: false,
-      message: "Missing 'bucketName' in request body",
-    });
+app.post("/aws-action", async (req, res) => {
+  const { service, action, params } = req.body;
+
+  if (!service || !action) {
+    return res.status(400).json({ error: "Missing 'service' or 'action' in request body" });
   }
 
   try {
-    const command = new CreateBucketCommand({ Bucket: bucketName });
-    await s3Client.send(command);
-    res.json({
-      success: true,
-      message: `Bucket '${bucketName}' created successfully.`,
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
+    // Load the appropriate AWS SDK client
+    const AWSClient = loadAWSClient(service);
+    const client = new AWSClient({ region: process.env.AWS_REGION });
 
-// List S3 buckets endpoint
-app.get("/list-s3-buckets", async (req, res) => {
-  try {
-    const command = new ListBucketsCommand({});
-    const data = await s3Client.send(command);
-    const bucketNames = data.Buckets.map(b => b.Name);
+    // Check if the action exists in the client
+    if (typeof client[action] !== "function") {
+      return res.status(400).json({ error: `Invalid action: ${action} for service: ${service}` });
+    }
 
-    res.json({ buckets: bucketNames });
+    // Dynamically invoke the action
+    const command = new client[action](params); // Create the command with params
+    const data = await client.send(command); // Send the command
+
+    res.json({ success: true, data });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ error: error.message });
   }
 });
 
