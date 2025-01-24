@@ -4,35 +4,6 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const path = require("path");
 
-app.use((req, res, next) => {
-  const authHeader = req.headers.authorization || "";
-
-  // Allow bypass for specific paths (e.g., health checks)
-  const bypassPaths = ["/healthz"];
-  if (bypassPaths.includes(req.path)) {
-    return next(); // Skip token validation for these paths
-  }
-
-  // Allow bypass for requests from localhost or Render's internal systems
-  const allowedOrigins = ["127.0.0.1", "216.24.60.0/24", "::1", "localhost"];
-  const requestIp = req.ip || req.connection.remoteAddress;
-  if (allowedOrigins.includes(requestIp)) {
-    return next(); // Skip token validation for local/internal requests
-  }
-
-  // Validate Bearer Token for all other requests
-  if (!authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ error: "Missing or invalid Bearer token" });
-  }
-
-  const token = authHeader.split(" ")[1];
-  if (token !== process.env.BEARER_TOKEN) {
-    return res.status(401).json({ error: "Unauthorized: Invalid token" });
-  }
-
-  next(); // Proceed to the next middleware/route handler if token is valid
-});
-
 // AWS SDK v3
 const {
   S3Client,
@@ -43,6 +14,21 @@ const {
 const app = express();
 app.use(bodyParser.json());
 app.use(cors());
+
+// Middleware to check for a valid Bearer Token
+app.use((req, res, next) => {
+  const authHeader = req.headers.authorization || "";
+  if (!authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "Missing or invalid Bearer token" });
+  }
+
+  const token = authHeader.split(" ")[1]; // Extract token from "Bearer <token>"
+  if (token !== process.env.BEARER_TOKEN) {
+    return res.status(401).json({ error: "Unauthorized: Invalid token" });
+  }
+
+  next(); // If token is valid, proceed to the next middleware/route handler
+});
 
 // Initialize AWS S3 client
 const s3Client = new S3Client({
