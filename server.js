@@ -118,7 +118,6 @@ const serviceClients = {
   emr: EMRClient,
   kinesis: KinesisClient,
   glue: GlueClient,
-  quicksight: QuickSightClient,
   athena: AthenaClient,
   ecs: ECSClient,
   ecr: ECRClient,
@@ -182,8 +181,8 @@ const serviceClients = {
   macie: MacieClient,
   costexplorer: CostExplorerClient,
   appflow: AppFlowClient,
-  sfn: SFNClient, // Step Functions
-  lex: LexModelBuildingServiceClient, // Lex
+  sfn: SFNClient,
+  lex: LexModelBuildingServiceClient,
 };
 
 const loadAWSClient = (service) => {
@@ -240,21 +239,28 @@ app.post("/aws-action", async (req, res) => {
   }
 
   try {
-    // Load the appropriate AWS SDK client
-    const AWSClient = loadAWSClient(service);
+    // Dynamically load the AWS SDK client
+    const AWSClient = loadAWSClient(service); // Function from earlier to load clients dynamically
     const client = new AWSClient({ region: process.env.AWS_REGION });
 
-    // Check if the action exists in the client
-    if (typeof client[action] !== "function") {
-      return res.status(400).json({ error: `Invalid action: ${action} for service: ${service}` });
+    // Dynamically resolve the command class
+    const commandName = `${action}Command`;
+    const commandModulePath = `@aws-sdk/client-${service}`; // SDK package naming convention
+    const { [commandName]: CommandClass } = await import(commandModulePath);
+
+    if (!CommandClass) {
+      return res.status(400).json({
+        error: `The action '${action}' is not valid for the service '${service}'.`,
+      });
     }
 
-    // Dynamically invoke the action
-    const command = new client[action](params); // Create the command with params
-    const data = await client.send(command); // Send the command
+    // Create and send the command
+    const command = new CommandClass(params || {});
+    const data = await client.send(command);
 
     res.json({ success: true, data });
   } catch (error) {
+    console.error("Error:", error.message);
     res.status(500).json({ error: error.message });
   }
 });
